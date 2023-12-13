@@ -13,11 +13,11 @@ import { TEST_POOLS, SWAP_CASES } from './pool_cases';
 
 async function main() {
     try {
-        const pool_case = 3;
-        const swap_case = 2;
+        const pool_number = 3;
+        const swap_number = 2;
 
-        const pool = TEST_POOLS[pool_case];
-        const swap = SWAP_CASES[swap_case];
+        const pool_case = TEST_POOLS[pool_number];
+        const swap_case = SWAP_CASES[swap_number];
 
         let simulationDataManager: SimulationDataManager =
         await SQLiteSimulationDataManager.buildInstance(
@@ -31,14 +31,14 @@ async function main() {
         // init Pool
         let configurableCorePool: ConfigurableCorePool =
         clientInstance.initCorePoolFromConfig(
-            new PoolConfig(pool.tickSpacing, "USDC", "ETH", pool.feeAmount)
+            new PoolConfig(pool_case.tickSpacing, "USDC", "ETH", pool_case.feeAmount)
         );
-        let sqrtPriceX96ForInitialization = JSBI.BigInt(pool.startingPrice.toString());
+        let sqrtPriceX96ForInitialization = JSBI.BigInt(pool_case.startingPrice.toString());
         await configurableCorePool.initialize(sqrtPriceX96ForInitialization);
         let corePoolView: CorePoolView = configurableCorePool.getCorePool();
 
         // mint positions
-        for (const mint_position of pool.positions) {
+        for (const mint_position of pool_case.positions) {
             let amount0: JSBI, amount1: JSBI;
             ({ amount0, amount1 } = await configurableCorePool.mint(
                 "testUser",
@@ -51,14 +51,15 @@ async function main() {
         const view_before = { ...corePoolView }
 
         //execute Swap case
-        //todo make correct swap
-        
+        //WIP make correct swap
         let amount0: JSBI, amount1: JSBI;
         ({ amount0, amount1 } = await configurableCorePool.swap(
-            swap.zeroForOne,
+            swap_case.zeroForOne,
             JSBI.BigInt("20000000000000000") //To-Do use amount0 or amount1
-            //To-Do implement amountout=True, i think swap(-x) is not implemented :(
+            // JSBI.BigInt(swap_case.amountX.toString()) //To-Do use amount0 or amount1
+                //To-Do implement amountout=True, i think swap(-x) is not implemented :(
         ));
+
 
         console.log("amounts 0 & 1: ", amount0.toString(), amount1.toString());
 
@@ -88,3 +89,6 @@ function print_values(view_before: any, view_after: any): void {
     console.log('tick_after: ', view_after._tickCurrent);
     console.log('\n');
 }
+
+
+
